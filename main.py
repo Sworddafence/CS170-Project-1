@@ -2,6 +2,7 @@
 #from queue import PriorityQueue
 from queue import Queue
 import time
+from queue import PriorityQueue
 
 
 def default_initial_state():
@@ -36,7 +37,7 @@ class Graph:
         self.movesdone = movesdone if movesdone is not None else []
         self.generation = generation if generation is not None else 0
 
-    def print(self):
+    def print_state(self):
         for row in self.matrix:
             print(" ".join(map(str, row)))
         print() 
@@ -74,7 +75,7 @@ class Graph:
     def do_move(self):
         matrixs = [] 
         possible = self.can_move()
-        gen = self.generation + 1
+        gen = self.generation
         if possible[0]:
             tempmatrix = [row[:] for row in self.matrix]
             temp = self.matrix[self.blank[0]][self.blank[1]-1]
@@ -120,7 +121,10 @@ class Graph:
         check = [[1,2,3],[4,5,6],[7,8,0]]
         return self.matrix == check
 
-
+    def __lt__(self, other):
+        # Compare based on the priority value
+        return misplaced_tiles(self.matrix)+self.generation < misplaced_tiles(other.matrix)+other.generation
+    
 def find_root(bob):
     for index, item in enumerate(bob):
         for jindex, jitem in enumerate(item):
@@ -138,7 +142,7 @@ def uniform_cost(initial_state):
     UCqueue.put(first_val)
     while not UCqueue.empty():
         node = UCqueue.get()
-        node.print()
+        node.print_state()
         if(node.isdone()):
             node.get_moves()
             return node
@@ -150,7 +154,51 @@ def uniform_cost(initial_state):
             
     return find_root(initial_state)
 
-# def misplaced():
+def misplaced_tiles(current_matrix):
+    num_misplaced = 0
+    goal_matrix =  [[1,2,3],[4,5,6],[7,8,0]]
+
+    n = len(goal_matrix)
+
+    for i in range(n):
+        for j in range(n):
+            if goal_matrix[i][j] != 0 and goal_matrix[i][j] != current_matrix[i][j]:
+                num_misplaced += 1
+                
+    return num_misplaced
+
+
+def misplaced(initial_state):
+    blank = find_root(initial_state)
+
+    first_val = Graph(initial_state, blank)
+    MPqueue = PriorityQueue()
+
+    MPqueue.put(first_val)
+    runs = 0
+    while not MPqueue.empty() and runs < 10:
+        print("RUNS: ")
+        print(runs)
+        runs+=1
+        node = MPqueue.get()
+        node.print_state()
+        if(node.isdone()):
+            node.get_moves()
+            return node
+        else:
+            temp = node.do_move()
+            print("Best State to expand with g(n) = " + str(node.generation))
+            for i in temp:
+
+
+                MPqueue.put(i)
+
+
+            
+    return find_root(initial_state)
+
+
+       
 
 
 # def euclidean():
@@ -182,7 +230,8 @@ def main():
             if algorithm == '1':
                 uniform_cost(initial_state)
                 break
-            # elif algorithm == '2':
+            elif algorithm == '2':
+                misplaced(initial_state)
             # elif algorithm == '3':
             else:
                 print("Invalid input. Please type '1' or '2' or '3'. ")
