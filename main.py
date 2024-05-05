@@ -129,7 +129,7 @@ def find_root(bob):
 
 def uniform_cost():
     #problem_set = [[3,4,1], [2,0,6], [7,8,5]]
-    problem_set = [[1,0,3], [4,2,6], [7,5,8]]
+    problem_set = [[5,2,3], [1,4,6], [7,0,8]]
 
 
     blank = find_root(problem_set)
@@ -140,13 +140,13 @@ def uniform_cost():
     UCqueue.put(first_val)
     while not UCqueue.empty():
         node = UCqueue.get()
-        time.sleep(0.1)
         node.print()
         if(node.isdone()):
             node.get_moves()
             return node
         else:
             temp = node.do_move()
+            print("Best State to expand with g(n) = " + str(node.generation))
             for i in temp:
                 UCqueue.put(i)
             
