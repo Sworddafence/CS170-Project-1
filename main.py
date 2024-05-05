@@ -4,29 +4,30 @@ from queue import Queue
 import time
 
 
-#def default_initial_state():
-#    # Create a list representing the initial state of the puzzle
-#    initial_state = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
-#    return initial_state
+def default_initial_state():
+   # Create a list representing the initial state of the puzzle
+   initial_state = [[1, 2, 3], [4, 5, 6], [7, 0, 8]]
+   return initial_state
 
 
-#def input_initial_state():
+def input_initial_state():
 
-#    print("Enter the numbers for the initial state of the 8-puzzle:")
-#    initial_state = [] #empty state
-#    row_num = 1 
-#    #user input for each row of the puzzle
-#    for _ in range(3):
-#        print("Row : " , row_num)
-#        row = input("Enter numbers for row separated by spaces: ").strip().split()
-#        row_num = row_num + 1
-#        initial_state.extend([int(num) for num in row])
-#    return initial_state
+   print("Enter the numbers for the initial state of the 8-puzzle:")
+   initial_state = [] #empty state
+   row_num = 1 
+   #user input for each row of the puzzle
+   for _ in range(3):
+       print("Row : " , row_num)
+       row = input("Enter numbers for row separated by spaces: ").strip().split()
+       row_num = row_num + 1
+       initial_state.append([int(num) for num in row])
+   return initial_state
 
-#def print_puzzle(state):
-#    #Print the puzzle grid
-#    for i in range(3):
-#        print(" ".join(map(str, state[i * 3: (i + 1) * 3])))
+def print_puzzle(state):
+   #Print the puzzle grid
+   for row in state:
+       print(" ".join(map(str, row)))
+
 
 class Graph:
     def __init__(self, matrix, blank=None, movesdone=None, generation=None):
@@ -127,14 +128,11 @@ def find_root(bob):
                 return index, jindex
 
 
-def uniform_cost():
-    #problem_set = [[3,4,1], [2,0,6], [7,8,5]]
-    problem_set = [[5,2,3], [1,4,6], [7,0,8]]
+def uniform_cost(initial_state):
 
+    blank = find_root(initial_state)
 
-    blank = find_root(problem_set)
-
-    first_val = Graph(problem_set, blank)
+    first_val = Graph(initial_state, blank)
     UCqueue = Queue()
 
     UCqueue.put(first_val)
@@ -150,42 +148,48 @@ def uniform_cost():
             for i in temp:
                 UCqueue.put(i)
             
-    return find_root(problem_set)
+    return find_root(initial_state)
+
 # def misplaced():
+
 
 # def euclidean():
 
 
 
 def main():
-    uniform_cost()
-    ##GUI
-    #print("Welcome to the 8 puzzle solver.")
-    #select = input("Type '1' to use a default puzzle, or '2' to enter your own puzzle: ")
+    #interface
+    print("Welcome to the 8 puzzle solver.")
+    while True:
+        select = input("Type '1' to use a default puzzle, or '2' to enter your own puzzle: ")
+        if select == '1':
+            initial_state = default_initial_state()
+        elif select == '2':
+            initial_state = input_initial_state()
+        else:
+            print("Invalid input. Please type '1' or '2'. ")
+            continue #repeats interface
 
-    #if select == '1':
-    #    initial_state = default_initial_state()
-    #elif select == '2':
-    #    initial_state = input_initial_state()
-    #else:
-    #    print("Invalid input. Please type '1' or '2'. ")
-    #    return
+        print("\nInitial State:")
+        print_puzzle(initial_state)
 
-    #print("\nInitial State:")
-    #print_puzzle(initial_state)
+        print("\nType '1' for Uniform Cost Search")
+        print("Type '2' for A* with the Misplaced Tile heuristic.")
+        print("Type '3' for A* with the Euclidean distance heuristic.")  
 
-    #print("\nType '1' for Uniform Cost Search")
-    #print("Type '2' for A* with the Misplaced Tile heuristic.")
-    #print("Type '3' for A* with the Euclidean distance heuristic.")  
-
-    #algorithm = input("\nEnter your choice of algorithm: ")
-
-    # if algorithm == '1':
-    # elif algorithm == '2':
-    # elif algorithm == '3':
-    # else:
-    #     print("Invalid input. Please type '1' or '2' or '3'. ")
-    #     return
-
+        while True:
+            algorithm = input("\nEnter your choice of algorithm: ")
+            if algorithm == '1':
+                uniform_cost(initial_state)
+                break
+            # elif algorithm == '2':
+            # elif algorithm == '3':
+            else:
+                print("Invalid input. Please type '1' or '2' or '3'. ")
+                continue #repeats interface
+        continue_search = input("\nDo you want to continue with another initial state? Type 'y' for yes and 'n' for no: ")
+        if continue_search not in ['y', 'yes']:
+            break
+        
 if __name__ == "__main__":
     main()
