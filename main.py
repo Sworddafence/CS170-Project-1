@@ -1,6 +1,7 @@
 #import random
-#from queue import PriorityQueue
+from queue import PriorityQueue
 from queue import Queue
+import math 
 import time
 
 
@@ -8,7 +9,7 @@ def default_initial_state():
    # Create a list representing the initial state of the puzzle
    initial_state = [[1, 2, 3], [4, 5, 6], [7, 0, 8]]
    return initial_state
-
+    
 
 def input_initial_state():
 
@@ -23,6 +24,7 @@ def input_initial_state():
        initial_state.append([int(num) for num in row])
    return initial_state
 
+
 def print_puzzle(state):
    #Print the puzzle grid
    for row in state:
@@ -36,7 +38,7 @@ class Graph:
         self.movesdone = movesdone if movesdone is not None else []
         self.generation = generation if generation is not None else 0
 
-    def print(self):
+    def printer(self):
         for row in self.matrix:
             print(" ".join(map(str, row)))
         print() 
@@ -138,7 +140,7 @@ def uniform_cost(initial_state):
     UCqueue.put(first_val)
     while not UCqueue.empty():
         node = UCqueue.get()
-        node.print()
+        node.printer()
         if(node.isdone()):
             node.get_moves()
             return node
@@ -150,13 +152,52 @@ def uniform_cost(initial_state):
             
     return find_root(initial_state)
 
-# def misplaced():
+# def misplaced(initial_state):
 
 
-# def euclidean():
+def euclidean(initial_state):
+    blank = find_root(initial_state)
+    lowest = 100000.0
 
+    first_val = Graph(initial_state, blank)
+    Equeue = PriorityQueue()
 
+    Equeue.put(first_val)
+    while not Equeue.empty():
+        node = Equeue.get()
+        node.printer()
+        if(node.isdone()):
+            node.get_moves()
+            return node
+        else:
+            temp = node.do_move()
+            for j in temp: 
+                h = distance(j.matrix)
+                if h < lowest:
+                    lowest = h
+                Equeue.put((h, j))
+            fn = node.generation + lowest
+            print("Best state to expand with g(n) and h(n) = " + str(fn))
+                
+    return find_root(initial_state)
 
+def distance(temp):
+    number = 1
+    h = 0
+    
+    for num in temp:
+        for y in range(0, 2):
+            for x in range(0, 2):
+                if (temp[y][x] != num):
+                    if(temp[y][x] <= 3):
+                        h = math.sqrt((0 - y)**2 + (temp[y][x] - 1 - x)**2) + h
+                    elif (temp[y][x] <= 6):
+                        h = math.sqrt((1 - y)**2 + (temp[y][x] - 3 - x)**2) + h
+                    elif (temp[y][x] <= 9):
+                        h = math.sqrt((2 - y)**2 + (temp[y][x] - 5 - x)**2) + h
+                     
+    return h
+    
 def main():
     #interface
     print("Welcome to the 8 puzzle solver.")
@@ -183,7 +224,9 @@ def main():
                 uniform_cost(initial_state)
                 break
             # elif algorithm == '2':
-            # elif algorithm == '3':
+            elif algorithm == '3':
+                euclidean(initial_state)
+                break
             else:
                 print("Invalid input. Please type '1' or '2' or '3'. ")
                 continue #repeats interface
