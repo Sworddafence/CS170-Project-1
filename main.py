@@ -6,10 +6,12 @@ import heapq
 import math
 
 
+
 def default_initial_state():
     # Create a list representing the initial state of the puzzle
     initial_state = [[1, 2, 4], [0, 5, 3], [7, 8, 6]]
     return initial_state
+
 
 
 def input_initial_state():
@@ -25,6 +27,7 @@ def input_initial_state():
         row_num = row_num + 1
         initial_state.append([int(num) for num in row])
     return initial_state
+
 
 
 def print_puzzle(state):
@@ -48,6 +51,20 @@ class PriorityQueue:
     def empty(self):
         return len(self._queue) == 0
 
+class PriorityQueue:
+    def __init__(self):
+        self._queue = []
+        self._index = 0
+
+    def push(self, item, priority):
+        heapq.heappush(self._queue, (priority, self._index, item))
+        self._index += 1
+
+    def pop(self):
+        return heapq.heappop(self._queue)[-1]
+
+    def empty(self):
+        return len(self._queue) == 0
 
 class Graph:
     def __init__(self, matrix, blank=None, movesdone=None, generation=None):
@@ -236,6 +253,7 @@ def misplaced(initial_state):
     return find_root(initial_state)
 
 
+
 def euclidean_distance(curr):
     def find_position(matrix, value):
         for i in range(len(matrix)):
@@ -245,6 +263,7 @@ def euclidean_distance(curr):
         return None
     distance = 0
     goal = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+
     for i in range(len(curr)):
         for j in range(len(curr[0])):
             value = curr[i][j]
@@ -262,13 +281,13 @@ def euclidean(initial_state):
     blank = find_root(initial_state)
     first_val = Graph(initial_state, blank)
     hash_table = {}
-    MPqueue = PriorityQueue()
-    MPqueue.push(first_val, euclidean_distance(
+    Equeue = PriorityQueue()
+    Equeue.push(first_val, euclidean_distance(
         first_val.matrix) + first_val.generation)
     hash_table[tuple(map(tuple, first_val.matrix))] = True
-    while not MPqueue.empty():
+    while not Equeue.empty():
         queue_size -=1
-        node = MPqueue.pop()
+        node = Equeue.pop()
         node.print_state()
         hash_table[tuple(map(tuple, node.matrix))] = True
         if (node.isdone()):
@@ -284,13 +303,14 @@ def euclidean(initial_state):
                   " h(n) = " + str(euclidean_distance(node.matrix)))
             for i in temp:
                 if not tuple(map(tuple, i.matrix)) in hash_table:
-                    MPqueue.push(i, euclidean_distance(
+                    Equeue.push(i, euclidean_distance(
                         i.matrix) + i.generation)
                     queue_size+=1
 
     return find_root(initial_state)
 
 
+    
 def main():
     # interface
     print("Welcome to the 8 puzzle solver.")
