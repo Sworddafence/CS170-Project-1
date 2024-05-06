@@ -7,7 +7,7 @@ from queue import PriorityQueue
 
 def default_initial_state():
    # Create a list representing the initial state of the puzzle
-   initial_state = [[1, 2, 3], [4, 5, 6], [7, 0, 8]]
+   initial_state = [[1, 2, 4],[0, 5, 3], [7, 8, 6]]
    return initial_state
 
 
@@ -75,7 +75,7 @@ class Graph:
     def do_move(self):
         matrixs = [] 
         possible = self.can_move()
-        gen = self.generation
+        gen = self.generation + 1
         if possible[0]:
             tempmatrix = [row[:] for row in self.matrix]
             temp = self.matrix[self.blank[0]][self.blank[1]-1]
@@ -180,7 +180,7 @@ def misplaced(initial_state):
             return node
         else:
             temp = node.do_move()
-            print("Best State to expand with g(n) = " + str(node.generation))
+            print("Best State to expand with g(n) = " + str(node.generation) + " h(n) = " + str(misplaced_tiles(node.matrix)))
             for i in temp:
                 MPqueue.put(i)
             
