@@ -1,14 +1,15 @@
-#import random
-#from queue import PriorityQueue
+# import random
+# from queue import PriorityQueue
 from queue import Queue
 import time
-
+import heapq
+import math
 
 def default_initial_state():
    # Create a list representing the initial state of the puzzle
    initial_state = [[1, 2, 3], [4, 5, 6], [7, 0, 8]]
    return initial_state
-
+    
 
 def input_initial_state():
 
@@ -23,11 +24,26 @@ def input_initial_state():
        initial_state.append([int(num) for num in row])
    return initial_state
 
+
 def print_puzzle(state):
    #Print the puzzle grid
    for row in state:
        print(" ".join(map(str, row)))
 
+class PriorityQueue:
+    def __init__(self):
+        self._queue = []
+        self._index = 0
+
+    def push(self, item, priority):
+        heapq.heappush(self._queue, (priority, self._index, item))
+        self._index += 1
+
+    def pop(self):
+        return heapq.heappop(self._queue)[-1]
+
+    def empty(self):
+        return len(self._queue) == 0
 
 class Graph:
     def __init__(self, matrix, blank=None, movesdone=None, generation=None):
@@ -36,10 +52,10 @@ class Graph:
         self.movesdone = movesdone if movesdone is not None else []
         self.generation = generation if generation is not None else 0
 
-    def print(self):
+    def print_state(self):
         for row in self.matrix:
             print(" ".join(map(str, row)))
-        print() 
+        print()
 
     def can_move_left(self):
         if(self.blank[1] == 0):
@@ -138,7 +154,7 @@ def uniform_cost(initial_state):
     UCqueue.put(first_val)
     while not UCqueue.empty():
         node = UCqueue.get()
-        node.print()
+        node.printer()
         if(node.isdone()):
             node.get_moves()
             return node
@@ -150,13 +166,44 @@ def uniform_cost(initial_state):
             
     return find_root(initial_state)
 
-# def misplaced():
+# def misplaced(initial_state):
 
+def euclidean_distance(curr):
+    distance = 0
+    goal = [[1,2,3],[4,5,6],[7,8,0]] 
+    for i in range(len(curr)):
+        for j in range(len(curr[0])):
+            value = curr[i][j]
+            if value != 0:
+                goal_pos = find_position(goal, value)
+                distance += math.sqrt((i - goal_pos[0]) ** 2 + (j - goal_pos[1]) ** 2)
+    return distance
 
-# def euclidean():
+def find_position(matrix, value):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            if matrix[i][j] == value:
+                return (i, j)
+    return None
 
+def euclidean(initial_state):
+    blank = find_root(initial_state)
+    first_val = Graph(initial_state, blank)
+    Equeue = PriorityQueue()
+    Equeue.push(first_val, euclidean_distance(first_val.matrix) + first_val.generation)
 
-
+    while not Equeue.empty():
+        node = Equeue.pop()
+        node.print_state()
+        if(node.isdone()):
+            node.get_moves()
+            return node
+        else:
+            temp = node.do_move()
+            print("Best State to expand with g(n) = " + str(node.generation) + " h(n) = " + str(euclidean_distance(node.matrix)))
+            for i in temp:
+                Equeue.push(i, euclidean_distance(i.matrix) + i.generation)
+    
 def main():
     #interface
     print("Welcome to the 8 puzzle solver.")
@@ -183,7 +230,9 @@ def main():
                 uniform_cost(initial_state)
                 break
             # elif algorithm == '2':
-            # elif algorithm == '3':
+            elif algorithm == '3':
+                euclidean(initial_state)
+                break
             else:
                 print("Invalid input. Please type '1' or '2' or '3'. ")
                 continue #repeats interface
