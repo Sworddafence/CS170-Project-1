@@ -347,7 +347,7 @@ def main():
                 print("Invalid input. Please type '1' or '2' or '3'. ")
                 continue  # repeats interface
         continue_search = input(
-            "\nDo you want to continue with another initial state? Type 'y' for yes and 'n' for no: ")
+            "\nDo you want to continue? Type 'y' for yes and 'n' for no: ")
         if continue_search not in ['y', 'yes']:
             break
 
