@@ -9,7 +9,7 @@ import math
 
 def default_initial_state():
     # Create a list representing the initial state of the puzzle
-    initial_state = [[1, 2, 4], [0, 5, 3], [7, 8, 6]]
+    initial_state = [[1, 2, 3], [4, 5, 6], [8, 7, 0]]
     return initial_state
 
 
@@ -35,21 +35,6 @@ def print_puzzle(state):
     for row in state:
         print(" ".join(map(str, row)))
 
-
-class PriorityQueue:
-    def __init__(self):
-        self._queue = []
-        self._index = 0
-
-    def push(self, item, priority):
-        heapq.heappush(self._queue, (priority, self._index, item))
-        self._index += 1
-
-    def pop(self):
-        return heapq.heappop(self._queue)[-1]
-
-    def empty(self):
-        return len(self._queue) == 0
 
 class PriorityQueue:
     def __init__(self):
@@ -173,6 +158,7 @@ def find_root(bob):
 def uniform_cost(initial_state):
     nodes_expanded = 0
     queue_size = 1 
+    queue_max = 0
     hash_table = {}
     blank = find_root(initial_state)
     first_val = Graph(initial_state, blank)
@@ -180,14 +166,14 @@ def uniform_cost(initial_state):
     UCqueue.put(first_val)
     hash_table[tuple(map(tuple, first_val.matrix))] = True
     while not UCqueue.empty():
+        queue_max = max(queue_size, queue_max)
         queue_size-=1 
         node = UCqueue.get()
-        hash_table[tuple(map(tuple, node.matrix))] = True
         node.print_state()
         if (node.isdone()):
             node.get_moves()
             print(f"To solve this problem the search algorithm expanded a total of {nodes_expanded} nodes.")
-            print(f"The maximum number of nodes in the queue at any one time: {queue_size+1}.")
+            print(f"The maximum number of nodes in the queue at any one time: {queue_max}.")
             print(f"The depth of the goal node was {node.generation}.")
             return node
         else:
@@ -197,8 +183,12 @@ def uniform_cost(initial_state):
             for i in temp:
                 if not tuple(map(tuple, i.matrix)) in hash_table:
                     UCqueue.put(i)
+                    hash_table[tuple(map(tuple, i.matrix))] = True
                     queue_size+=1
-
+    print(f"{len(hash_table)}")
+    print(f"This impossible problem the search algorithm expanded a total of {nodes_expanded} nodes.")
+    print(f"The maximum number of nodes in the queue at any one time: {queue_max + 1}.")
+    print(f"The Answer does not exists")
     return find_root(initial_state)
 
 
@@ -219,6 +209,7 @@ def misplaced_tiles(current_matrix):
 def misplaced(initial_state):
     nodes_expanded = 0
     queue_size = 1
+    queue_max = 0
     blank = find_root(initial_state)
     hash_table = {}
     first_val = Graph(initial_state, blank)
@@ -229,6 +220,7 @@ def misplaced(initial_state):
 
     while not MPqueue.empty():
 
+        queue_max = max(queue_size, queue_max)
         node = MPqueue.pop()
         queue_size -= 1
         node.print_state()
@@ -236,7 +228,7 @@ def misplaced(initial_state):
         if (node.isdone()):
             node.get_moves()
             print(f"To solve this problem the search algorithm expanded a total of {nodes_expanded} nodes.")
-            print(f"The maximum number of nodes in the queue at any one time: {queue_size+1}.")
+            print(f"The maximum number of nodes in the queue at any one time: {queue_max}.")
             print(f"The depth of the goal node was {node.generation}.")
             return node
         else:
@@ -248,8 +240,11 @@ def misplaced(initial_state):
             for i in temp:
                 if not tuple(map(tuple, i.matrix)) in hash_table:
                     MPqueue.push(i, misplaced_tiles(i.matrix) + i.generation)
+                    hash_table[tuple(map(tuple, i.matrix))] = True
                     queue_size+=1
-
+    print(f"This impossible problem the search algorithm expanded a total of {nodes_expanded} nodes.")
+    print(f"The maximum number of nodes in the queue at any one time: {queue_max}.")
+    print(f"The Answer does not exists")
     return find_root(initial_state)
 
 
@@ -277,6 +272,7 @@ def euclidean_distance(curr):
 def euclidean(initial_state):
     nodes_expanded = 0
     queue_size = 1
+    queue_max = 0
 
     blank = find_root(initial_state)
     first_val = Graph(initial_state, blank)
@@ -286,6 +282,7 @@ def euclidean(initial_state):
         first_val.matrix) + first_val.generation)
     hash_table[tuple(map(tuple, first_val.matrix))] = True
     while not Equeue.empty():
+        queue_max = max(queue_size, queue_max)
         queue_size -=1
         node = Equeue.pop()
         node.print_state()
@@ -293,7 +290,7 @@ def euclidean(initial_state):
         if (node.isdone()):
             node.get_moves()
             print(f"To solve this problem the search algorithm expanded a total of {nodes_expanded} nodes.")
-            print(f"The maximum number of nodes in the queue at any one time: {queue_size+1}.")
+            print(f"The maximum number of nodes in the queue at any one time: {queue_max}.")
             print(f"The depth of the goal node was {node.generation}.")
             return node
         else:
@@ -305,8 +302,11 @@ def euclidean(initial_state):
                 if not tuple(map(tuple, i.matrix)) in hash_table:
                     Equeue.push(i, euclidean_distance(
                         i.matrix) + i.generation)
+                    hash_table[tuple(map(tuple, i.matrix))] = True
                     queue_size+=1
-
+    print(f"This impossible problem the search algorithm expanded a total of {nodes_expanded} nodes.")
+    print(f"The maximum number of nodes in the queue at any one time: {queue_max}.")
+    print(f"The Answer does not exists")
     return find_root(initial_state)
 
 
