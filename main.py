@@ -1,9 +1,9 @@
-#import random
-from queue import PriorityQueue
+# import random
+# from queue import PriorityQueue
 from queue import Queue
-import math 
 import time
-
+import heapq
+import math
 
 def default_initial_state():
    # Create a list representing the initial state of the puzzle
@@ -30,6 +30,20 @@ def print_puzzle(state):
    for row in state:
        print(" ".join(map(str, row)))
 
+class PriorityQueue:
+    def __init__(self):
+        self._queue = []
+        self._index = 0
+
+    def push(self, item, priority):
+        heapq.heappush(self._queue, (priority, self._index, item))
+        self._index += 1
+
+    def pop(self):
+        return heapq.heappop(self._queue)[-1]
+
+    def empty(self):
+        return len(self._queue) == 0
 
 class Graph:
     def __init__(self, matrix, blank=None, movesdone=None, generation=None):
@@ -38,10 +52,10 @@ class Graph:
         self.movesdone = movesdone if movesdone is not None else []
         self.generation = generation if generation is not None else 0
 
-    def printer(self):
+    def print_state(self):
         for row in self.matrix:
             print(" ".join(map(str, row)))
-        print() 
+        print()
 
     def can_move_left(self):
         if(self.blank[1] == 0):
@@ -154,49 +168,41 @@ def uniform_cost(initial_state):
 
 # def misplaced(initial_state):
 
+def euclidean_distance(curr):
+    distance = 0
+    goal = [[1,2,3],[4,5,6],[7,8,0]] 
+    for i in range(len(curr)):
+        for j in range(len(curr[0])):
+            value = curr[i][j]
+            if value != 0:
+                goal_pos = find_position(goal, value)
+                distance += math.sqrt((i - goal_pos[0]) ** 2 + (j - goal_pos[1]) ** 2)
+    return distance
+
+def find_position(matrix, value):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            if matrix[i][j] == value:
+                return (i, j)
+    return None
 
 def euclidean(initial_state):
     blank = find_root(initial_state)
-    lowest = 100000.0
-
     first_val = Graph(initial_state, blank)
     Equeue = PriorityQueue()
+    Equeue.push(first_val, euclidean_distance(first_val.matrix) + first_val.generation)
 
-    Equeue.put(first_val)
     while not Equeue.empty():
-        node = Equeue.get()
-        node.printer()
+        node = Equeue.pop()
+        node.print_state()
         if(node.isdone()):
             node.get_moves()
             return node
         else:
             temp = node.do_move()
-            for j in temp: 
-                h = distance(j.matrix)
-                if h < lowest:
-                    lowest = h
-                Equeue.put((h, j))
-            fn = node.generation + lowest
-            print("Best state to expand with g(n) and h(n) = " + str(fn))
-                
-    return find_root(initial_state)
-
-def distance(temp):
-    number = 1
-    h = 0
-    
-    for num in temp:
-        for y in range(0, 2):
-            for x in range(0, 2):
-                if (temp[y][x] != num):
-                    if(temp[y][x] <= 3):
-                        h = math.sqrt((0 - y)**2 + (temp[y][x] - 1 - x)**2) + h
-                    elif (temp[y][x] <= 6):
-                        h = math.sqrt((1 - y)**2 + (temp[y][x] - 3 - x)**2) + h
-                    elif (temp[y][x] <= 9):
-                        h = math.sqrt((2 - y)**2 + (temp[y][x] - 5 - x)**2) + h
-                     
-    return h
+            print("Best State to expand with g(n) = " + str(node.generation) + " h(n) = " + str(euclidean_distance(node.matrix)))
+            for i in temp:
+                Equeue.push(i, euclidean_distance(i.matrix) + i.generation)
     
 def main():
     #interface
