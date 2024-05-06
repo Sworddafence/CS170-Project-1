@@ -122,8 +122,7 @@ class Graph:
         return self.matrix == check
 
     def __lt__(self, other):
-        # Compare based on the priority value
-        return misplaced_tiles(self.matrix)+self.generation < misplaced_tiles(other.matrix)+other.generation
+        return (misplaced_tiles(self.matrix)+self.generation) < (misplaced_tiles(other.matrix)+other.generation)
     
 def find_root(bob):
     for index, item in enumerate(bob):
@@ -157,7 +156,6 @@ def uniform_cost(initial_state):
 def misplaced_tiles(current_matrix):
     num_misplaced = 0
     goal_matrix =  [[1,2,3],[4,5,6],[7,8,0]]
-
     n = len(goal_matrix)
 
     for i in range(n):
@@ -170,16 +168,11 @@ def misplaced_tiles(current_matrix):
 
 def misplaced(initial_state):
     blank = find_root(initial_state)
-
     first_val = Graph(initial_state, blank)
     MPqueue = PriorityQueue()
-
     MPqueue.put(first_val)
-    runs = 0
-    while not MPqueue.empty() and runs < 10:
-        print("RUNS: ")
-        print(runs)
-        runs+=1
+
+    while not MPqueue.empty():
         node = MPqueue.get()
         node.print_state()
         if(node.isdone()):
@@ -189,11 +182,7 @@ def misplaced(initial_state):
             temp = node.do_move()
             print("Best State to expand with g(n) = " + str(node.generation))
             for i in temp:
-
-
                 MPqueue.put(i)
-
-
             
     return find_root(initial_state)
 
